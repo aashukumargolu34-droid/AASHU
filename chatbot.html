@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>MRU campus .ai</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f3f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: #143d59;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.7rem;
+      letter-spacing: 1px;
+    }
+    #category-select {
+      margin: 1rem auto;
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    #category-select button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 20px;
+      margin: 0.2rem;
+      background: #f4b41a;
+      color: #143d59;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #category-select button.selected,
+    #category-select button:hover {
+      background: #143d59;
+      color: #fff;
+    }
+    #chatbox {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 520px;
+      margin: 0 auto;
+      width: 100%;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px #143d5916;
+      overflow: hidden;
+    }
+    #messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .msg {
+      max-width: 86%;
+      padding: 0.7em 1em;
+      border-radius: 20px;
+      word-break: break-word;
+      font-size: 1.07em;
+      line-height: 1.4;
+    }
+    .msg.user {
+      align-self: flex-end;
+      background: #143d59;
+      color: #fff;
+      border-bottom-right-radius: 0;
+    }
+    .msg.bot {
+      align-self: flex-start;
+      background: #f4b41a;
+      color: #143d59;
+      border-bottom-left-radius: 0;
+    }
+    #input-area {
+      display: flex;
+      border-top: 1px solid #eee;
+      padding: 0.6rem;
+      background: #f8f8f8;
+    }
+    #message-input {
+      flex: 1;
+      padding: 0.7em 1em;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 1em;
+      outline: none;
+      transition: border 0.2s;
+    }
+    #message-input:focus {
+      border: 1.5px solid #143d59;
+    }
+    #send-btn {
+      background: #143d59;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      margin-left: 0.7em;
+      padding: 0.7em 1.4em;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: bold;
+    }
+    #send-btn:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+    }
+    @media (max-width: 600px) {
+      #chatbox {
+        max-width: 100vw;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>MRU campus .ai</header>
+  <div id="category-select"></div>
+  <div id="chatbox">
+    <div id="messages"></div>
+    <form id="input-area" autocomplete="off">
+      <input id="message-input" type="text" placeholder="Type your message..." autocomplete="off" required />
+      <button id="send-btn" type="submit">Send</button>
+    </form>
+  </div>
+  <script>
+    // ---- CONFIG ----
+    const BACKEND_URL = "https://your-backend-url.com"; // <-- Replace with your backend API URL!
+    // ----------------
+
+    const categories = [
+      "Academic Help",
+      "Campus Info",
+      "Mental Health",
+      "Sports Health"
+    ];
+    let selectedCategory = categories[0];
+
+    const categorySelect = document.getElementById('category-select');
+    const messages = document.getElementById('messages');
+    const form = document.getElementById('input-area');
+    const input = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    function renderCategories() {
+      categorySelect.innerHTML = '';
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.textContent = cat;
+        btn.className = (cat === selectedCategory) ? 'selected' : '';
+        btn.onclick = () => {
+          selectedCategory = cat;
+          renderCategories();
+        };
+        categorySelect.appendChild(btn);
+      });
+    }
+    renderCategories();
+
+    function addMsg(text, sender) {
+      const div = document.createElement('div');
+      div.className = `msg ${sender}`;
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendMessage(text) {
+      addMsg(text, 'user');
+      input.value = '';
+      sendBtn.disabled = true;
+      addMsg('...', 'bot');
+      try {
+        const res = await fetch(`${BACKEND_URL}/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, feature: selectedCategory })
+        });
+        const data = await res.json();
+        // Remove the placeholder '...'
+        messages.removeChild(messages.lastChild);
+        addMsg(data.response || "No reply from AI.", 'bot');
+      } catch (e) {
+        messages.removeChild(messages.lastChild);
+        addMsg('Sorry, there was an error connecting to MRU campus .ai.', 'bot');
+      }
+      sendBtn.disabled = false;
+      input.focus();
+    }
+
+    form.onsubmit = e => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (text) sendMessage(text);
+    };
+  </script>
+</body>
+</html>
