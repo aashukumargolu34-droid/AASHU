@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MRU.AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f6f7fb; }
+    nav { background: #222; color: #fff; padding: 10px 20px; display: flex; align-items: center; }
+    nav span { font-weight: bold; font-size: 1.3em; margin-right: 20px; }
+    nav button { margin-right: 10px; padding: 7px 14px; background: #444; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    nav button.active { background: #08f; }
+    section { display: none; padding: 24px; max-width: 700px; margin: 0 auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 6px #0001; margin-top: 32px;}
+    section.active { display: block; }
+    .profile-photo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #08f; }
+    .profile-info label { font-weight: bold; }
+    .lib-section, .canteen-menu, .event-list, .holiday-list, .campus-section, .gym-section, .mental-section { margin-bottom: 18px; }
+    .chatbot { max-width: 400px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; background: #fafbfc; padding: 20px; }
+    .chatlog { max-height: 200px; overflow-y: auto; margin-bottom: 10px; background: #eee; border-radius: 5px; padding: 10px; }
+    .chatbot input, .chatbot button { padding: 7px; margin: 2px; border-radius: 4px; border: 1px solid #ccc; }
+    .chatbot button { background: #222; color: #fff; border: none; }
+    .login-box, .register-box { max-width: 350px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 6px #0002;}
+    .login-box input, .register-box input, .register-box select { width: 100%; padding: 6px; margin: 7px 0; border-radius: 5px; border: 1px solid #bbb; }
+    .google-btn { background: #4285f4; color: #fff; border: none; padding: 8px 14px; border-radius: 4px; margin-top: 10px; cursor: pointer; }
+    .center { text-align: center; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <nav>
+    <span>MRU.AI</span>
+    <button onclick="showSection('profile')">Profile</button>
+    <button onclick="showSection('campus')">Campus Info</button>
+    <button onclick="showSection('library')">Library</button>
+    <button onclick="showSection('holidays')">Holidays</button>
+    <button onclick="showSection('canteen')">Canteen</button>
+    <button onclick="showSection('gym')">Gym</button>
+    <button onclick="showSection('mental')">Mental Health</button>
+    <button onclick="showSection('events')">Events</button>
+    <button onclick="showSection('chatbot')">Chat Bot</button>
+    <button onclick="logout()" style="margin-left:auto;">Logout</button>
+  </nav>
+
+  <!-- LOGIN / REGISTER -->
+  <section id="login-section" class="active">
+    <div class="login-box">
+      <h2 class="center">Login to MRU.AI</h2>
+      <input type="email" id="login-email" placeholder="Email" required>
+      <input type="password" id="login-password" placeholder="Password" required>
+      <button onclick="login()">Login</button>
+      <div class="center">
+        <button class="google-btn" onclick="googleLogin()">Continue with Google</button>
+      </div>
+      <p class="center">Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+  </section>
+  <section id="register-section">
+    <div class="register-box">
+      <h2 class="center">Register on MRU.AI</h2>
+      <input type="text" id="reg-name" placeholder="Full Name" required>
+      <input type="email" id="reg-email" placeholder="Email" required>
+      <input type="password" id="reg-password" placeholder="Password" required>
+      <select id="reg-gender">
+        <option value="">Gender</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+      <input type="number" id="reg-age" placeholder="Age" min="10" max="99">
+      <input type="text" id="reg-hobbies" placeholder="Hobbies (comma separated)">
+      <input type="text" id="reg-goals" placeholder="Goals">
+      <input type="text" id="reg-campus" placeholder="Campus Name">
+      <input type="text" id="reg-branch" placeholder="Branch">
+      <input type="text" id="reg-section" placeholder="Section">
+      <input type="text" id="reg-roll" placeholder="Roll Number">
+      <input type="url" id="reg-photo" placeholder="Profile Photo URL">
+      <button onclick="register()">Register</button>
+      <p class="center">Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile-section">
+    <h2>Your Profile</h2>
+    <div class="center">
+      <img id="profile-photo" class="profile-photo" src="https://ui-avatars.com/api/?name=User" alt="Profile Photo">
+    </div>
+    <div class="profile-info">
+      <p><label>Name:</label> <span id="profile-name"></span></p>
+      <p><label>Email:</label> <span id="profile-email"></span></p>
+      <p><label>Gender:</label> <span id="profile-gender"></span></p>
+      <p><label>Age:</label> <span id="profile-age"></span></p>
+      <p><label>Hobbies:</label> <span id="profile-hobbies"></span></p>
+      <p><label>Goals:</label> <span id="profile-goals"></span></p>
+      <p><label>Campus Name:</label> <span id="profile-campus"></span></p>
+      <p><label>Branch:</label> <span id="profile-branch"></span></p>
+      <p><label>Section:</label> <span id="profile-section-val"></span></p>
+      <p><label>Roll Number:</label> <span id="profile-roll"></span></p>
+    </div>
+  </section>
+
+  <!-- CAMPUS INFO -->
+  <section id="campus-section">
+    <h2>Campus Info</h2>
+    <div class="campus-section">
+      <h3>About Campus</h3>
+      <p>MRU campus is spread over 100 acres with lush green environment and modern infrastructure.</p>
+    </div>
+    <div class="campus-section">
+      <h3>Ground</h3>
+      <p>The campus has a large ground for cricket, football, and athletics, as well as basketball and tennis courts.</p>
+    </div>
+    <div class="campus-section">
+      <h3>Other Facilities</h3>
+      <ul>
+        <li>Auditorium</li>
+        <li>Hostels</li>
+        <li>Labs</li>
+        <li>Cafeteria</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section id="library-section">
+    <h2>Library</h2>
+    <div class="lib-section">
+      <h3>Coding Books</h3>
+      <ul>
+        <li>Introduction to Algorithms</li>
+        <li>Clean Code</li>
+        <li>Python Crash Course</li>
+      </ul>
+    </div>
+    <div class="lib-section">
+      <h3>History Books</h3>
+      <ul>
+        <li>Sapiens: A Brief History of Humankind</li>
+        <li>India After Gandhi</li>
+      </ul>
+    </div>
+    <div class="lib-section">
+      <h3>Other Sections</h3>
+      <ul>
+        <li>Novels</li>
+        <li>Reference Material</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- HOLIDAYS -->
+  <section id="holidays-section">
+    <h2>Holidays & Festivals</h2>
+    <div class="holiday-list">
+      <h3>Upcoming Holidays</h3>
+      <ul>
+        <li>15th August - Independence Day</li>
+        <li>2nd October - Gandhi Jayanti</li>
+        <li>Diwali Festival Break</li>
+        <li>Christmas Holiday</li>
+      </ul>
+    </div>
+    <div class="holiday-list">
+      <h3>Festivals Celebrated On Campus</h3>
+      <ul>
+        <li>Holi</li>
+        <li>Lohri</li>
+        <li>Navratri</li>
+        <li>Freshers' Party</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CANTEEN -->
+  <section id="canteen-section">
+    <h2>Canteen Menu</h2>
+    <div class="canteen-menu">
+      <ul>
+        <li>Puffs</li>
+        <li>Cold Drinks</li>
+        <li>Burger</li>
+        <li>Pizza</li>
+        <li>Sandwich</li>
+        <li>Maggi</li>
+        <li>French Fries</li>
+        <li>Chips</li>
+        <li>Samosa</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- GYM -->
+  <section id="gym-section">
+    <h2>Gym Facilities</h2>
+    <div class="gym-section">
+      <ul>
+        <li>Dumbbells</li>
+        <li>Treadmill</li>
+        <li>Cycling Machine</li>
+        <li>Bench Press</li>
+        <li>Yoga Mats</li>
+        <li>Personal Trainer</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- MENTAL HEALTH -->
+  <section id="mental-section">
+    <h2>Mental Health & Wellness</h2>
+    <div class="mental-section">
+      <ul>
+        <li>Running</li>
+        <li>Yoga</li>
+        <li>Meditation</li>
+        <li>Group Counseling</li>
+        <li>Mindfulness Workshops</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- EVENTS -->
+  <section id="events-section">
+    <h2>Events</h2>
+    <div class="event-list">
+      <ul>
+        <li>Freshers' Party</li>
+        <li>Annual Fest</li>
+        <li>Sports Day</li>
+        <li>Tech Fest</li>
+        <li>Workshops</li>
+        <li>Farewell</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CHAT BOT -->
+  <section id="chatbot-section">
+    <h2>MRU.AI Chat Bot</h2>
+    <div class="chatbot">
+      <div class="chatlog" id="chatlog"></div>
+      <input type="text" id="chatinput" placeholder="Type your message..." onkeydown="if(event.key==='Enter') sendChat()">
+      <button onclick="sendChat()">Send</button>
+    </div>
+  </section>
+
+  <script>
+    // Show/Hide Sections
+    function showSection(section) {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.querySelector('nav').style.display = (section === 'login' || section === 'register') ? 'none' : 'flex';
+      if(section === 'profile') loadProfile();
+      document.getElementById(section + '-section').classList.add('active');
+    }
+    function showLogin() {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.getElementById('login-section').classList.add('active');
+      document.querySelector('nav').style.display = 'none';
+    }
+    function showRegister() {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.getElementById('register-section').classList.add('active');
+      document.querySelector('nav').style.display = 'none';
+    }
+    function logout() {
+      localStorage.removeItem('mruai-user');
+      showLogin();
+    }
+
+    // Registration & Login
+    function register() {
+      const user = {
+        name: document.getElementById('reg-name').value,
+        email: document.getElementById('reg-email').value,
+        password: document.getElementById('reg-password').value,
+        gender: document.getElementById('reg-gender').value,
+        age: document.getElementById('reg-age').value,
+        hobbies: document.getElementById('reg-hobbies').value,
+        goals: document.getElementById('reg-goals').value,
+        campus: document.getElementById('reg-campus').value,
+        branch: document.getElementById('reg-branch').value,
+        section: document.getElementById('reg-section').value,
+        roll: document.getElementById('reg-roll').value,
+        photo: document.getElementById('reg-photo').value || 'https://ui-avatars.com/api/?name=User'
+      };
+      if(!user.email || !user.password || !user.name) { alert("Fill all required fields!"); return; }
+      localStorage.setItem('mruai-user', JSON.stringify(user));
+      showLogin();
+      alert('Registration successful! You can now login.');
+    }
+    function login() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const user = JSON.parse(localStorage.getItem('mruai-user') || '{}');
+      if(user.email === email && user.password === password) {
+        showSection('profile');
+      } else {
+        alert('Invalid credentials!');
+      }
+    }
+    function googleLogin() {
+      // Demo only - simulate Google login
+      const user = {
+        name: "Google User",
+        email: "googleuser@mruai.com",
+        password: "google",
+        gender: "Other",
+        age: "20",
+        hobbies: "Reading, Coding",
+        goals: "Learn AI",
+        campus: "MRU Main",
+        branch: "CSE",
+        section: "A",
+        roll: "MRU12345",
+        photo: "https://ui-avatars.com/api/?name=Google+User"
+      };
+      localStorage.setItem('mruai-user', JSON.stringify(user));
+      showSection('profile');
+    }
+
+    // Load Profile Info
+    function loadProfile() {
+      const user = JSON.parse(localStorage.getItem('mruai-user') || '{}');
+      document.getElementById('profile-photo').src = user.photo || 'https://ui-avatars.com/api/?name=User';
+      document.getElementById('profile-name').innerText = user.name || '';
+      document.getElementById('profile-email').innerText = user.email || '';
+      document.getElementById('profile-gender').innerText = user.gender || '';
+      document.getElementById('profile-age').innerText = user.age || '';
+      document.getElementById('profile-hobbies').innerText = user.hobbies || '';
+      document.getElementById('profile-goals').innerText = user.goals || '';
+      document.getElementById('profile-campus').innerText = user.campus || '';
+      document.getElementById('profile-branch').innerText = user.branch || '';
+      document.getElementById('profile-section-val').innerText = user.section || '';
+      document.getElementById('profile-roll').innerText = user.roll || '';
+    }
+
+    // Chatbot Logic (very basic demo version)
+    function sendChat() {
+      const chatlog = document.getElementById('chatlog');
+      const input = document.getElementById('chatinput');
+      const userMsg = input.value.trim();
+      if(!userMsg) return;
+      chatlog.innerHTML += `<div><b>You:</b> ${userMsg}</div>`;
+      input.value = '';
+      setTimeout(() => {
+        let botReply = "Sorry, I don't understand.";
+        const lowerMsg = userMsg.toLowerCase();
+        if(lowerMsg === "hi" || lowerMsg === "hii" || lowerMsg === "hello") botReply = "Hii!";
+        else if(lowerMsg === "how are you") botReply = "I am fine, thank you!";
+        else if(lowerMsg.includes("bye")) botReply = "Goodbye! Have a nice day!";
+        else if(lowerMsg.includes("your name")) botReply = "My name is MRU.AI Chatbot.";
+        chatlog.innerHTML += `<div><b>Bot:</b> ${botReply}</div>`;
+        chatlog.scrollTop = chatlog.scrollHeight;
+      }, 400);
+    }
+
+    // On load, check if logged in
+    window.onload = function() {
+      if(localStorage.getItem('mruai-user')) showSection('profile');
+      else showLogin();
+    };
+  </script>
+</body>
+</html>
