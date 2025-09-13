@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MRUcampus.ai</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {font-family: 'Segoe UI', sans-serif; margin:0; background: #f2f4f8;}
+        header {background: #2d3e50; color:#fff; padding:10px 0; display:flex; align-items:center; justify-content:space-between;}
+        .logo {font-size:2rem; font-weight:bold; margin-left:40px;}
+        nav {display:flex;}
+        nav a {color:#fff; text-decoration:none; margin:0 16px; font-weight:500; transition:.2s;}
+        nav a:hover {color:#4ed5b7;}
+        .profile-btn {background:#4ed5b7; border:none; color:#fff; border-radius:25px; padding:8px 18px; cursor:pointer; margin-right:40px;}
+        main {max-width:1100px; margin:40px auto; background:#fff; border-radius:10px; box-shadow:0 2px 12px #0001; padding:30px;}
+        .container {display:flex; flex-wrap:wrap;}
+        .left, .right {flex:1; min-width:300px; margin:10px;}
+        h2 {color:#2d3e50;}
+        .card {background:#f8fafc; border-radius:8px; box-shadow:0 1px 4px #0001; padding:18px; margin-bottom:20px;}
+        /* Login/Register Modal */
+        .modal {display:none; position:fixed; z-index:100; left:0; top:0; width:100%; height:100%; background:rgba(44,62,80,0.9);}
+        .modal-content {background:#fff; margin:80px auto; padding:30px 40px; border-radius:8px; width:350px; position:relative;}
+        .modal h3 {margin-top:0;}
+        .close {position:absolute; right:18px; top:14px; font-size:1.5rem; cursor:pointer;}
+        .input-group {margin-bottom:16px;}
+        .input-group label {display:block; margin-bottom:6px;}
+        .input-group input, .input-group select, .input-group textarea {width:100%; padding:8px; border:1px solid #c4c4c4; border-radius:4px;}
+        .modal .btn {background:#4ed5b7; color:#fff; border:none; padding:10px 16px; border-radius:4px; font-weight:600; cursor:pointer;}
+        /* Profile Side Panel */
+        #profilePanel {display:none; position:fixed; top:0; right:0; width:340px; height:100vh; background:#fff; box-shadow:-2px 0 12px #0002; padding:30px 22px;}
+        #profilePanel .close {position:absolute; top:15px; right:20px;}
+        #profileImage {width:90px; height:90px; border-radius:50%; object-fit:cover; background:#eee; display:block; margin:0 auto 16px;}
+        #profilePanel h3 {text-align:center; margin:6px 0 18px;}
+        .profile-info {font-size:1rem;}
+        .profile-info b {display:inline-block; width:110px;}
+        /* Responsive */
+        @media (max-width:800px) {
+            .container {flex-direction:column;}
+            main {padding:16px;}
+            header {flex-direction:column;}
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <span class="logo">MRUcampus.ai</span>
+        <nav>
+            <a href="#campus-info">Campus Info</a>
+            <a href="#mental-health">Mental Health</a>
+            <a href="#library">Library</a>
+            <a href="#holidays">Holidays</a>
+            <a href="#canteen">Canteen Foods</a>
+            <a href="#studypdfs">Study PDFs</a>
+        </nav>
+        <button class="profile-btn" onclick="showLoginModal()">Login / Register</button>
+    </header>
+
+    <main>
+        <!-- Chatbot Section -->
+        <div class="card">
+            <h2>Welcome to MRUcampus.ai Chatbot</h2>
+            <div id="chatbox" style="height:140px; overflow-y:auto; background:#f6f8fb; border-radius:6px; padding:14px; margin-bottom:8px;">
+                <div><b>Bot:</b> Hi! I’m MRUcampus.ai 🤖. How can I help you today?</div>
+            </div>
+            <input type="text" id="userInput" placeholder="Type your question here..." style="width:80%;padding:7px;" onkeydown="if(event.key==='Enter'){handleChat();}">
+            <button onclick="handleChat()" class="btn">Send</button>
+        </div>
+
+        <div class="container">
+            <!-- Left column -->
+            <div class="left">
+                <div class="card" id="campus-info">
+                    <h3>Campus Info</h3>
+                    <ul>
+                        <li>Campus Ground</li>
+                        <li>Gym</li>
+                        <li>Auditorium</li>
+                        <li>Sports Complex</li>
+                        <li>Cafeteria</li>
+                        <li>Hostels</li>
+                    </ul>
+                </div>
+                <div class="card" id="mental-health">
+                    <h3>Mental Health</h3>
+                    <p>Access counseling, peer support, and online resources for student well-being.</p>
+                </div>
+                <div class="card" id="library">
+                    <h3>Library</h3>
+                    <p>Explore the digital catalog, book borrowing, and reading rooms. <br> <a href="#">Library Portal</a></p>
+                </div>
+            </div>
+            <!-- Right column -->
+            <div class="right">
+                <div class="card" id="holidays">
+                    <h3>Holidays Info</h3>
+                    <ul>
+                        <li>Independence Day - 15 Aug</li>
+                        <li>Diwali - 1 Nov</li>
+                        <li>Christmas - 25 Dec</li>
+                        <li>Summer Break - 1 June to 30 June</li>
+                    </ul>
+                </div>
+                <div class="card" id="canteen">
+                    <h3>Canteen Foods</h3>
+                    <ul>
+                        <li>Puff</li>
+                        <li>Rolls</li>
+                        <li>Sandwiches</li>
+                        <li>Noodles</li>
+                        <li>Coffee & Tea</li>
+                    </ul>
+                </div>
+                <div class="card" id="studypdfs">
+                    <h3>Study PDFs</h3>
+                    <p>Find and download notes, e-books, and study materials. <br> <a href="#">View PDFs</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login/Register Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h3 id="modalTitle">Login</h3>
+            <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
+                <div class="input-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="input-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <p style="margin-top:12px;text-align:center;">Don't have an account? <a href="#" onclick="showRegister()">Register</a></p>
+            </form>
+            <form id="registerForm" style="display:none;" onsubmit="event.preventDefault(); handleRegister();">
+                <div class="input-group">
+                    <label for="regUsername">Username</label>
+                    <input type="text" id="regUsername" required>
+                </div>
+                <div class="input-group">
+                    <label for="regName">Full Name</label>
+                    <input type="text" id="regName" required>
+                </div>
+                <div class="input-group">
+                    <label for="regAge">Age</label>
+                    <input type="number" id="regAge" min="10" max="100" required>
+                </div>
+                <div class="input-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="input-group">
+                    <label for="regPhone">Phone Number</label>
+                    <input type="tel" id="regPhone" required pattern="[0-9]{10}">
+                </div>
+                <div class="input-group">
+                    <label for="regCampus">Campus Name</label>
+                    <input type="text" id="regCampus" required>
+                </div>
+                <div class="input-group">
+                    <label for="regBranch">Branch</label>
+                    <input type="text" id="regBranch" required>
+                </div>
+                <div class="input-group">
+                    <label for="regSection">Section</label>
+                    <input type="text" id="regSection" required>
+                </div>
+                <div class="input-group">
+                    <label for="regHobbies">Hobbies</label>
+                    <textarea id="regHobbies" rows="2" required></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="regImage">Profile Image</label>
+                    <input type="file" id="regImage" accept="image/*" required>
+                </div>
+                <div class="input-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" required>
+                </div>
+                <button type="submit" class="btn">Register</button>
+                <p style="margin-top:12px;text-align:center;">Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Side Panel -->
+    <div id="profilePanel">
+        <span class="close" onclick="closeProfilePanel()">&times;</span>
+        <img id="profileImage" src="https://ui-avatars.com/api/?name=User" alt="Profile">
+        <h3 id="profileUsername">Username</h3>
+        <div class="profile-info" id="profileData">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <script>
+        // Modal logic
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+            showLogin();
+        }
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+        function showRegister() {
+            document.getElementById('modalTitle').innerText = 'Register';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+        function showLogin() {
+            document.getElementById('modalTitle').innerText = 'Login';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+        // Profile panel
+        function showProfilePanel() {
+            let user = JSON.parse(localStorage.getItem('mru_user') || '{}');
+            document.getElementById('profilePanel').style.display = 'block';
+            document.getElementById('profileUsername').innerText = user.username || 'Username';
+            document.getElementById('profileImage').src = user.image || 'https://ui-avatars.com/api/?name=' + (user.username || 'User');
+            document.getElementById('profileData').innerHTML = `
+                <div><b>Name:</b> ${user.name || ''}</div>
+                <div><b>Age:</b> ${user.age || ''}</div>
+                <div><b>Email:</b> ${user.email || ''}</div>
+                <div><b>Phone:</b> ${user.phone || ''}</div>
+                <div><b>Campus:</b> ${user.campus || ''}</div>
+                <div><b>Branch:</b> ${user.branch || ''}</div>
+                <div><b>Section:</b> ${user.section || ''}</div>
+                <div><b>Hobbies:</b> ${user.hobbies || ''}</div>
+            `;
+        }
+        function closeProfilePanel() {
+            document.getElementById('profilePanel').style.display = 'none';
+        }
+
+        // Login/Register logic (localStorage-based for demo)
+        function handleLogin() {
+            let email = document.getElementById('loginEmail').value;
+            let password = document.getElementById('loginPassword').value;
+            let user = JSON.parse(localStorage.getItem('mru_user') || '{}');
+            if (user.email === email && user.password === password) {
+                closeLoginModal();
+                document.querySelector('.profile-btn').innerText = "Profile";
+                document.querySelector('.profile-btn').onclick = showProfilePanel;
+                alert("Login successful!");
+            } else {
+                alert("Invalid credentials.");
+            }
+        }
+        function handleRegister() {
+            let username = document.getElementById('regUsername').value;
+            let name = document.getElementById('regName').value;
+            let age = document.getElementById('regAge').value;
+            let email = document.getElementById('regEmail').value;
+            let phone = document.getElementById('regPhone').value;
+            let campus = document.getElementById('regCampus').value;
+            let branch = document.getElementById('regBranch').value;
+            let section = document.getElementById('regSection').value;
+            let hobbies = document.getElementById('regHobbies').value;
+            let password = document.getElementById('regPassword').value;
+            let imageFile = document.getElementById('regImage').files[0];
+            if (imageFile) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let user = {username, name, age, email, phone, campus, branch, section, hobbies, password, image: e.target.result};
+                    localStorage.setItem('mru_user', JSON.stringify(user));
+                    closeLoginModal();
+                    document.querySelector('.profile-btn').innerText = "Profile";
+                    document.querySelector('.profile-btn').onclick = showProfilePanel;
+                    alert("Registration successful!");
+                }
+                reader.readAsDataURL(imageFile);
+            } else {
+                alert("Please upload a profile photo.");
+            }
+        }
+
+        // Chatbot logic (simple demo)
+        function handleChat() {
+            let input = document.getElementById('userInput').value.trim();
+            if(!input) return;
+            let chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML += `<div><b>You:</b> ${input}</div>`;
+            setTimeout(() => {
+                let response = getBotResponse(input);
+                chatbox.innerHTML += `<div><b>Bot:</b> ${response}</div>`;
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }, 600);
+            document.getElementById('userInput').value = '';
+        }
+        function getBotResponse(input) {
+            input = input.toLowerCase();
+            if (input.includes("mental health")) return "Our campus provides counseling and peer support. Visit the Mental Health section or speak to our counselor at Room 108.";
+            if (input.includes("library")) return "Library is open from 9am to 8pm. You can access e-books and study material via the Library Portal.";
+            if (input.includes("holiday")) return "Check the Holidays Info section for upcoming holidays!";
+            if (input.includes("canteen")) return "Today's canteen menu includes: Puff, Rolls, Sandwiches, Noodles, Coffee, and Tea.";
+            if (input.includes("pdf")) return "For study PDFs, visit the Study PDFs section or ask for a specific subject.";
+            if (input.includes("ground") || input.includes("gym")) return "Campus has a cricket ground, football field, and a modern gym open from 6am to 9pm.";
+            return "Sorry, I didn't understand. Please try asking about campus info, library, holidays, canteen foods, or study PDFs.";
+        }
+
+        // Close modals on outside click
+        window.onclick = function(event) {
+            let modal = document.getElementById('loginModal');
+            if (event.target == modal) {
+                closeLoginModal();
+            }
+            let profile = document.getElementById('profilePanel');
+            if (event.target == profile) {
+                closeProfilePanel();
+            }
+        }
+    </script>
+</body>
+</html>
